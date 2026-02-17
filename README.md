@@ -9,3 +9,12 @@ https://frode-sandnes.github.io/IMAGE-SIMILARITY/pdf2json.html
 A live demo is available at:
 https://frode-sandnes.github.io/IMAGE-SIMILARITY/imageAnalysis.html
 
+
+# Configure an experiment
+You will find the relevant part in the main source:
+
+To use this cood you need the SSIM.js library:
+https://obartra.github.io/ssim/
+
+And the sdbscan.js library:
+(https://github.com/solzimer/sdbscan/
