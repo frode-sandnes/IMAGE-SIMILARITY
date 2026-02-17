@@ -12,7 +12,7 @@ https://frode-sandnes.github.io/IMAGE-SIMILARITY/imageAnalysis.html
 
 # Experimentation
 You will find the relevant part in my source notes. Note that these are notes and not source code ready to be used out of the box. The code has not been cleaned:
-[Source code notes](./imageSimilarity.js)
+[Source code notes](/imageSimilarity.js)
 You can run the experiments from the browser:
 https://github.com/frode-sandnes/IMAGE-SIMILARITY/blob/main/imageSimilarity.html
 
