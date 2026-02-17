@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pdfImages2json</title>
+
+    <style>
+
+        /* By Frode Eika Sandnes, Oslo Metropolitan University, November, 2023.*/
+        
+        body
+            {
+            color:lightgrey;
+            background-color:black;
+            font-family:sans-serif;
+            }
+        .border  {
+            margin: 0 auto;
+            width: 80%;
+            padding: 1em;
+            border: 1px solid #CCC;
+            border-radius: 1em;
+            word-wrap: break-word;
+            }        
+        li
+            {
+            padding: 0.5rem;
+            }
+
+        #fileSelectorId
+            {
+            color: white;                
+            background-color: orangered;    
+            }
+
+        #indexDbDialogId
+            {
+            background-color: yellow;    
+            }
+
+        #readingFileId
+            {
+            background-color: orange;        
+            }    
+        #parsingInfoId
+            {
+            color: white;
+            background-color: blue;
+            }
+
+        #cleaningId
+            {
+            color: white;
+            background-color: darkred;
+            }
+
+        #currentFileId, #currentIndexId, #totalId
+            {
+            color: yellow;    
+            }
+
+        #finishedId
+            {
+            background-color: darkgreen;
+            color: white;
+            a 
+                {
+                color: yellow;    
+                }
+            }
+
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.228/pdf.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/6.0.1/tesseract.min.js"></script>    
+    <script src="chunkPdfOCR2json.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script>
+    
+</head>
+<body>
+</body>
+    <h1>Extrat text and image contents from pdf-files</h1>
+    <p>Due to memory limitations of the browser the files are read in several chunks.</p>
+    <p>By Frode Eika Sandnes, OsloMet, March, 2025</p>
+    <dialog id="fileSelectorId">
+        <h1>Select pdf-files to process</h1>
+        <p>Batch convert pdf documents to json with file info, text contents, page info and figure info.</p>  
+        <p>Image (url-data) data are stored in separate json-file.</p> 
+        <p>For very many large pdf files run several times and join the parts using the separate json-joiner tool.</p>   
+        <p>Use Contrl/Shift to select multiple files (Contrl-A for all).</p> 
+        <div class="border">
+            <div id="select files">
+                <div id="firstInputControls">
+    
+                <label for="file-selector-pdf"><span>Pdf files to convert</span></label><br>
+                <input type="file" multiple id="file-selector-pdf" accept=".pdf" >
+                    
+                </div>
+            </div>  
+            
+            <div>
+                <input type="checkbox" id="extractImages" name="extractImages" checked />
+                <label for="extractImages">Extract Images</label>
+
+                <input type="checkbox" id="extractText" name="extractText" checked />
+                <label for="extractText">Extract Text</label>
+
+                <input type="checkbox" id="runOCR" name="rerunOCR" unchecked />
+                <label for="runOCR">Run OCR</label>
+
+                <input type="checkbox" id="reduceImageSize" name="reduceImageSize" checked />
+                <label for="reduceImageSize">Reduce image size</label>
+            </div>        
+        </div>
+    </dialog>
+
+    <dialog id="readingFileId">
+        <h1>Reading files from disk...</h1>
+        <p>Reading pdf files and placing contents in temporary indexdb....should be quite quick!</p>
+        <button style="background-color: red;" onclick="emergencyStop()">⚠ Emergency break</button>
+    </dialog>
+
+    <dialog id="indexDbDialogId">
+        <h1>Setting up indexdb...</h1>
+        <p>Setting up local indexdb for temporary storing partial results. This may take a while....</p>
+        <button style="background-color: red;" onclick="emergencyStop()">⚠ Emergency break</button>
+    </dialog>
+
+    <dialog id="parsingInfoId">
+        <h1>Parsing pdf contents</h1>
+        <p>Extracting the text and image contents.</p>
+        <p>Current file: <span id="currentFileId"></span> </p>
+        <p>Status: <span id="currentIndexId"></span> / <span id="totalId"></span> reports processed</p>
+        <button style="background-color: red;" onclick="emergencyStop()">⚠ Emergency break</button>
+    </dialog>
+        
+    <dialog id="cleaningId">
+        <h1>Cleaning up... please wait!</h1>
+        <p>Please wait for the indexdb in the browser to be cleaned....this could take a while...</p>
+        <button style="background-color: red;" onclick="emergencyStop()">⚠ Emergency break</button>
+    </dialog>
+
+    <dialog id="finishedId">
+        <h1>Finished</h1>
+        <p>Please find the two json files containing the text contents and image contents in your download folder.</p>
+        <p><a href="#" onclick="window.location.reload(true);">Reload</a> to convert more pdf-documents.</p>
+        <p>Use the json-merging tool if you need to combine several results.</p>
+    </dialog>
+</body>
+</html>
