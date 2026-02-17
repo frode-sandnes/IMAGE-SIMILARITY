@@ -18,3 +18,5 @@ https://obartra.github.io/ssim/
 
 And the sdbscan.js library:
 (https://github.com/solzimer/sdbscan/
+
+For some of the experiments you may also need tensorflow.js.
