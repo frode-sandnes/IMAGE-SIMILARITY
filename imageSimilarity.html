@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>imageAnalysis</title>
+
+    <style>
+
+        /* By Frode Eika Sandnes, Oslo Metropolitan University, November, 2025.*/
+        
+        body
+            {
+            color:lightgrey;
+            background-color:black;
+            font-family:sans-serif;
+            }
+        .border  {
+            margin: 0 auto;
+            width: 80%;
+            padding: 1em;
+            border: 1px solid #CCC;
+            border-radius: 1em;
+            word-wrap: break-word;
+            }        
+        li
+            {
+            padding: 0.5rem;
+            }
+
+        img 
+            {
+            width: 75px;
+            height: auto;
+            }
+            
+     /*   img:hover 
+            {
+            width: 300px;
+            height: auto;
+            }*/
+
+        /* specific for the templates */
+        :root
+            {
+            --solo: hsl(0, 93%, 21%);
+            --duet: hsl(39, 88%, 22%);
+            --trio: hsl(120, 92%, 19%);
+            --quartet: hsl(240, 90%, 24%);
+            --quintet: hsl(300, 93%, 24%);    
+            }
+
+            .grid
+                {
+                display: grid;
+                grid-template-columns: repeat(3, 30%);  
+                grid-template-rows: repeat(3);  
+                grid-gap:10px 10px; 
+                }
+            .grid-item
+                {
+                padding:10px;
+                } 
+
+        #sharedId
+            {
+            background-color: #222;   
+            }
+        .groupVisCss1
+            {
+            .member1
+                {
+                background-color: var(--solo);   
+                };  
+            }
+        .groupVisCss2
+            {
+            .member1
+                {
+                background-color: var(--duet);    
+                };  
+/*            #memberId2*/
+            .member2
+                {
+                background-color: hsl(from var(--duet) h s calc(l + 10));   
+                };
+          /*  .grid
+                {
+                display: grid;
+                grid-template-columns: repeat(3, 30%);  
+                grid-gap:50px 30px; 
+                }
+            .grid-item
+                {
+                padding:10px;
+                }*/
+            }
+        .groupVisCss3
+            {
+            .member1
+                {
+                background-color: var(--trio);     
+                };  
+            .member2
+                {
+                background-color: hsl(from var(--trio) h s calc(l + 10));   
+                };
+            .member3
+                {
+                background-color: hsl(from var(--trio) h s calc(l + 20));   
+                }; 
+              
+      /*      .grid
+                {
+                display: grid;
+                grid-template-columns: repeat(3, 30%);  
+                grid-template-rows: repeat(2,50%);  
+                grid-gap:50px 30px; 
+                }
+            .grid-item
+                {
+                padding:10px;
+                }      */          
+            }
+        .groupVisCss4
+            {
+            .member1
+                {
+                background-color: var(--quartet);      
+                };                  
+            .member2
+                {
+                background-color: hsl(from var(--quartet) h s calc(l + 10));   
+                };
+            .member3
+                {
+                background-color: hsl(from var(--quartet) h s calc(l + 20));   
+                };  
+            .member4
+                {
+                background-color: hsl(from var(--quartet) h s calc(l + 30));   
+                }  
+            }
+        .groupVisCss5
+            {
+            .member1
+                {
+                background-color: var(--quintet);    
+                };                  
+            .member2
+                {
+                background-color: hsl(from var(--quintet) h s calc(l + 10));   
+                };
+            .member3
+                {
+                background-color: hsl(from var(--quintet) h s calc(l + 20));   
+                };  
+            .member4
+                {
+                background-color: hsl(from var(--quintet) h s calc(l + 30));   
+                };    
+            .member5
+                {
+                background-color: hsl(from var(--quintet) h s calc(l + 40));   
+                }                                 
+            }
+
+        #fullImageId
+            {
+            z-index: 10;
+            /*opacity: 0.8;*/
+            background-color: black;
+            color: white;
+            }
+        
+        #individuality, #collaboration
+            {
+            color: yellow;
+            }
+
+    </style>
+
+    <script src="sdbscan.js" defer></script>
+    <script src="imageSimilarity.js" defer></script>
+    <script src="./lib/FileSaver.js" defer></script>
+    <script src="ssim.web.js"></script>    
+  	<!--  <script src="https://unpkg.com/ssim.js@^2.0.0"></script>
+    -->
+	<!-- Load TensorFlow.js. This is required to use MobileNet. 
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"> </script>-->
+	<!-- Load the MobileNet model. 
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0"> </script>-->
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+    <script src="https://unpkg.com/@tensorflow-models/mobilenet"></script>
+
+    <!-- stuff for saving excel sheets results -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.1/xlsx.full.min.js"></script> 
+
+
+</head>
+<body>
+</body>
+    <div id="startForm">
+        <h1 id="info">image Similarity Computation</h1>
+        <p>Analyses the similarity of images in a set of reports</p>
+        <p>Images must be first extracted with the pdf2json tool.</p>
+        <p>This implementation assumes a maximum hard-coded group size of 5 students.</p>
+        <div class="border">
+            <ul><li id="progressBarId" style="display: none;">
+                Status: <span id="progressMessageId" style="color: red;"></span> <span id="counterElementId" style="display: block">(<span id="progressCounterId" style="color:yellow;"></span>)</span>
+                </li>
+                <div id="firstInputControls">
+                    <li id="submitButton" style="display: none">
+                        <label for="processID"><span>Generate JSON-file</span></label><br>
+                        <button type="submit" id="processID" style="background:lime">Save local copy</button>
+                    </li>
+
+                    <li id="jsonToJoin">
+                        <label for="file-selector-json"><span>Json files to join</span></label><br>
+                        <input type="file" id="file-selector-json" accept=".json" >
+                    </li>
+                </div>
+
+                <li id="finalMessageId" style="display: none; color: lime"><h1>Finished!</h1></li>
+            </ul>				
+
+        <h2>Status report:</h2>                    
+        <p id="report" style="color: yellow;"></p>
+
+        </div>
+    </div>    
+    <h3 id="processing" hidden>Computing similarities...</h3>
+    <h3 id="finished" hidden>Finished...image clusters saved in json file.</h3>
+
+
+<template id="groupVisTemplate1">
+    <div id="rootId" class="groupVisCss1">
+        <h1 id="titleId"></h1>
+
+        <div id="memberId1">
+            <h2 id="memberNameId"></h2>
+        </div>
+
+        <div id="sharedId">
+        </div>
+    </div>
+</template>
+
+<template id="groupVisTemplate2">
+    <div id="rootId" class="groupVisCss2">
+        <h1 id="titleId"></h1>
+
+        <div class="grid">
+            <div id="memberId1" class="grid-item member1">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="memberId2" class="grid-item member2">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>    
+
+            <div id="sharedId" class="grid-item">
+                <h2>Common</h2>
+            </div>
+
+        </div>
+
+
+    </div>
+</template>
+
+<template id="groupVisTemplate3">
+    <div id="rootId" class="groupVisCss3">
+        <h1 id="titleId"></h1>
+
+        <div class="grid">
+            <div class="grid-item">empty</div>
+            <div id="memberId1" class="grid-item member1">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+            <div class="grid-item">empty</div>
+
+            <div id="memberId2" class="grid-item member2">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="memberId3" class="grid-item member3">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="sharedId" class="grid-item">
+                <h2>Common</h2>
+            </div>
+
+        </div>
+    </div>
+</template>
+
+<template id="groupVisTemplate4">
+    <div id="rootId" class="groupVisCss4">
+        <h1 id="titleId"></h1>
+
+        <div class="grid">
+            <div id="memberId1" class="grid-item member1">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+            <div id="memberId2" class="grid-item member2">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+            <div id="memberId3" class="grid-item member3">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="memberId4" class="grid-item member4">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="sharedId">
+                <h2>Common</h2>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="groupVisTemplate5">
+    <div id="rootId" class="groupVisCss5">
+        <h1 id="titleId"></h1>
+
+        <div class="grid">
+            <div id="memberId1" class="grid-item member1">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+            <div id="memberId2" class="grid-item member2">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+            <div id="memberId3" class="grid-item member3">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+            <div id="memberId4" class="grid-item member4">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="memberId5" class="grid-item member5">
+                <h2 id="memberNameId"></h2>
+                <p>Individuality: <span id="individuality">0.24</span>, collaboration: <span id="collaboration">0.42</p>
+            </div>
+
+            <div id="sharedId">
+                <h2>Common</h2>
+            </div>            
+
+        </div>
+    </div>
+</template>
+
+
+<dialog id="fullImageId">
+    <img id="popupImageId" width="90%" height="auto">
+    <span id="popupImageInfoId">Info here</span>
+</dialog>
+
+    </body>
+</html>
