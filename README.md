@@ -10,7 +10,7 @@ A live demo is available at:
 https://frode-sandnes.github.io/IMAGE-SIMILARITY/imageAnalysis.html
 
 
-# Configure an experiment
+To configure an experiment
 You will find the relevant part in the main source:
 
 To use this cood you need the SSIM.js library:
