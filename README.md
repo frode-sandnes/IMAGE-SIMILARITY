@@ -1,6 +1,9 @@
 # IMAGE-SIMILARITY
+This is the companikon resources to the article:
 
-You find a project description here:
+Frode Eika Sandnes, Applying Image Similarity Analysis to Coursework in Visual Design Education, Thinking Skills and Creativity 61 (2026) 102169. https://doi.org/10.1016/j.tsc.2026.102169 
+
+You will find a project description here:
 https://frode-sandnes.github.io/IMAGE-SIMILARITY/
 
 A tool for preparing json files with images extracted from pdf documents. The tool also can extract text:
